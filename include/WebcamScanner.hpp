@@ -50,13 +50,10 @@ private:
     static void onMouse(int event, int x, int y, int, void* userdata);
 
     // mouse event params
-    const float max_dist_corner = 10.0;
+    const float max_dist_corner = 50.0;
     bool dragged = false;
     int nearest_corner = 0;
 
     std::vector<cv::Point> corners;
-
-    cv::Point point1, point2; 
-
 };
 

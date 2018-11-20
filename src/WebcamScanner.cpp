@@ -1,10 +1,7 @@
 #include <WebcamScanner.hpp>
 
 WebcamScanner::WebcamScanner() {
-    corners.push_back(cv::Point(20,20));
-    corners.push_back(cv::Point(100,20));
-    corners.push_back(cv::Point(100,100));
-    corners.push_back(cv::Point(20,100));
+    corners = std::vector<cv::Point>(4);
 }
 
 void WebcamScanner::usage_stage_1()
@@ -29,7 +26,6 @@ bool WebcamScanner::stage_1(cv::VideoCapture& cap, std::vector<cv::Mat>& output_
         frame.copyTo(view_image);
 
         
-
         cv::putText(view_image, patch::to_string(output_images.size()), text_pos, 1, 2.0, cv::Scalar(0.0,0.0,0.0), 3);
 
         cv::imshow("WebcamScanner", view_image);
@@ -101,6 +97,11 @@ bool WebcamScanner::stage_2(std::vector<cv::Mat>& input_images,
 
     for(cv::Mat img : input_images)
     {
+
+        corners[0] = cv::Point(50,50);
+        corners[1] = cv::Point(img.cols - 50, 50);
+        corners[2] = cv::Point(img.cols - 50,img.rows - 50);
+        corners[3] = cv::Point(50,img.rows - 50);
         
         while(1) {
 
@@ -218,6 +219,10 @@ void WebcamScanner::onMouse(int event, int x, int y)
         if(dist < max_dist_corner)
         {
             nearest_corner = n_corner_id;
+
+            corners[nearest_corner].x = x;
+            corners[nearest_corner].y = y;
+
             dragged = true;
         } else {
             dragged = false;
