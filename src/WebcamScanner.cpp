@@ -71,11 +71,21 @@ void WebcamScanner::usage_stage_2()
 bool WebcamScanner::stage_2(std::vector<cv::Mat>& input_images,
     float target_height_width_ratio,
     int target_width,
-    std::vector<cv::Mat>& output_images
+    std::vector<cv::Mat>& output_images,
+    int filter
 )
 {
     cv::namedWindow("Recorded Image", CV_WINDOW_NORMAL);
     cv::namedWindow("Transformed Image", CV_WINDOW_NORMAL);
+
+
+    int thresh_max = 255;
+    int thresh;
+
+    if(filter > 0)
+    {
+        cv::createTrackbar( "Threshold", "Transformed Image", &thresh, thresh_max, NULL );
+    }
 
     cv::setMouseCallback("Recorded Image", WebcamScanner::onMouse, this);
 
@@ -132,6 +142,24 @@ bool WebcamScanner::stage_2(std::vector<cv::Mat>& input_images,
             T = cv::getPerspectiveTransform(source_corners, target_corners);
             cv::warpPerspective(img, transformed_image, T, target_image_size);
 
+            if(filter > 0)
+            {
+                cv::Mat gray;
+                cv::cvtColor(transformed_image, gray, cv::COLOR_BGR2GRAY);
+
+                // good one: OTSU
+                if(filter == 1)
+                {
+                    cv::threshold(gray, gray, thresh, thresh_max, cv::THRESH_OTSU);
+                } else if(filter == 2)
+                {
+                    cv::threshold(gray, gray, thresh, thresh_max, cv::ADAPTIVE_THRESH_GAUSSIAN_C);
+                    gray =  cv::Scalar::all(255) - gray;
+                }
+                
+                cv::cvtColor(gray, transformed_image, cv::COLOR_GRAY2BGR);
+            }
+            
 
             cv::imshow("Transformed Image", transformed_image);
 
@@ -250,3 +278,13 @@ void WebcamScanner::onMouse(int event, int x, int y, int, void* userdata)
     settings->onMouse(event, x, y);
 }
 
+void WebcamScanner::onTrackbar(int)
+{
+
+}
+
+void WebcamScanner::onTrackbar(int, void* userdata)
+{
+    WebcamScanner* settings = reinterpret_cast<WebcamScanner*>(userdata);
+    settings->onTrackbar(0);
+}

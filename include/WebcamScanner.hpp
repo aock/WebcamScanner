@@ -32,7 +32,8 @@ public:
     bool stage_2(std::vector<cv::Mat>& input_images,
         float target_height_width_ratio,
         int target_width,
-        std::vector<cv::Mat>& output_images);
+        std::vector<cv::Mat>& output_images,
+        int filter=0);
 
     void save_images(const std::vector<cv::Mat>& images, std::string folder);
     void read_images(std::string folder, std::vector<cv::Mat>& images);
@@ -49,10 +50,18 @@ private:
     void onMouse(int event, int x, int y);
     static void onMouse(int event, int x, int y, int, void* userdata);
 
+
+    void onTrackbar(int);
+    static void onTrackbar( int, void* userdata);
+
     // mouse event params
     const float max_dist_corner = 50.0;
     bool dragged = false;
     int nearest_corner = 0;
+
+    // trackbar params
+    
+
 
     std::vector<cv::Point> corners;
 };
